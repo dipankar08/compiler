@@ -1,0 +1,4 @@
+set width 1000
+r
+bt
+q

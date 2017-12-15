@@ -1,39 +1,85 @@
-extern crate hyper;
-extern crate futures;
+extern crate rand;
+extern crate iron;
+extern crate rustc_serialize;
+extern crate router;
 
+use iron::prelude::*;
+use iron::status;
+use iron::mime::Mime;
+use rand::Rng;
+use rustc_serialize::json;
+use router::Router;
+use std::io::Read;
 
-use futures::future::Future;
+#[derive(RustcDecodable)]
+struct JsonRequest {
+  name: String
+}
 
-use hyper::header::ContentLength;
-use hyper::server::{Http, Request, Response, Service};
+#[derive(RustcEncodable, RustcDecodable)]
+struct JsonResponse {
+  response: String,
+  success: bool,
+  error_message: String
+}
 
-struct HelloWorld;
+impl JsonResponse {
+  fn success(response: String) -> Self {
+    JsonResponse { response: response, success: true, error_message: "".to_string() }
+  }
 
-const PHRASE: &'static str = "Hello, World!";
+  fn error(msg: String) -> Self {
+    JsonResponse { response: "".to_string(), success: false, error_message: msg }
+  }
+}
 
-impl Service for HelloWorld {
-    // boilerplate hooking up hyper's server types
-    type Request = Request;
-    type Response = Response;
-    type Error = hyper::Error;
-    // The future representing the eventual Response your call will
-    // resolve to. This can change to whatever Future you need.
-    type Future = Box<Future<Item=Self::Response, Error=Self::Error>>;
+fn pick_response(name: String) -> String {
+  let num = rand::thread_rng().gen_range(1, 4);
 
-    fn call(&self, _req: Request) -> Self::Future {
-        // We're currently ignoring the Request
-        // And returning an 'ok' Future, which means it's ready
-        // immediately, and build a Response with the 'PHRASE' body.
-        Box::new(futures::future::ok(
-            Response::new()
-                .with_header(ContentLength(PHRASE.len() as u64))
-                .with_body(PHRASE)
-        ))
+  let response = match num {
+    1 => format!("Hello {}!", name),
+    2 => format!("Did you see that ludicrous display last night, {}?", name),
+    3 => format!("Nice weather for ducks, isn't it {}", name),
+    _ => format!("")     // match is exhaustive
+  };
+
+  response.to_string()
+}
+
+fn handler(req: &mut Request) -> IronResult<Response> {
+  let response = JsonResponse::success(pick_response("hello".to_string()));
+  let out = json::encode(&response).expect("Failed to encode response");
+
+  let content_type = "application/json".parse::<Mime>().expect("Failed to parse content type");
+  Ok(Response::with((content_type, status::Ok, out)))
+}
+
+fn post_handler(req: &mut Request) -> IronResult<Response> {
+  let mut payload = String::new();
+  req.body.read_to_string(&mut payload).expect("Failed to read request body");
+
+  // let incoming: JsonResponse = json::decode(&payload).ok().expect("Invalid JSON in POST body");
+  let out = match json::decode(&payload) {
+    Err(e) => {
+      let response = JsonResponse::error(format!("Error parsing JSON: {:?}", e));
+      json::encode(&response).ok().expect("Error encoding response")
+    },
+    Ok(incoming) => {
+      let converted: JsonRequest = incoming;
+      let response = JsonResponse::success(get_name(converted.name));
+      json::encode(&response).expect("Error encoding response")
     }
+  };
+
+  let content_type = "application/json".parse::<Mime>().expect("Failed to parse content type");
+  Ok(Response::with((content_type, status::Ok, out)))
 }
 
 fn main() {
-    let addr = "0.0.0.0:8000".parse().unwrap();
-    let server = Http::new().bind(&addr, || Ok(HelloWorld)).unwrap();
-    server.run().unwrap();
+  let mut router = Router::new();
+  router.get("/", handler, "index");
+  router.post("/", post_handler, "post_name");
+
+  println!("Listening on localhost:3009");
+  Iron::new(router).http("localhost:3009").ok();
 }

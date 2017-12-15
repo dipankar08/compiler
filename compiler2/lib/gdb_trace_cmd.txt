@@ -1,0 +1,27 @@
+set $start = 1
+b main
+run
+printf ">>>>>STEP<<<<<\n"
+info line
+printf ">>>>>LOCAL<<<<<\n"
+info local
+printf ">>>>>ARGS<<<<<\n"
+info args
+printf ">>>>>BT<<<<<\n"
+bt
+
+set $start = 1
+  while($start<200)
+    printf ">>>>>OUTPUT<<<<<\n"
+    next
+    printf ">>>>>STEP<<<<<\n"
+    info line
+    printf ">>>>>BT<<<<<\n"
+    bt
+    printf ">>>>>LOCAL<<<<<\n"
+    info local
+    printf ">>>>>ARGS<<<<<\n"
+    info args
+    set $start = $start+1
+  end
+q
