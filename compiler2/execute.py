@@ -22,8 +22,8 @@ DEBUG = True
 from languageConfig import LangConfig
 import string
 # # # # # # # # # # # # # # # #     GLOBAL DEFINATION Must be matched with CodeStudio.JS# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-SUPPORED_LANGUAGE = ['Python', 'C + + ', 'C', 'Obj-C', 'Java', 'C + + 11', 'C + + 98', 'C + + 14', 'CLang', 'Go', 'C# ', 'Perl', 'Ruby', 'Node', 'Scala', 'Haskell', 'Python3', 'Prolog', 'PHP', 'Clojure']
-C_STYLE_SUPPORED_LANGUAGE = ['C + + ', 'C', 'Obj-C', 'C + + 11', 'C + + 98', 'C + + 14', 'CLang']
+SUPPORED_LANGUAGE = LangConfig.keys() #['Python', 'C++ ', 'C', 'Obj-C', 'Java', 'C + + 11', 'C + + 98', 'C + + 14', 'CLang', 'Go', 'C# ', 'Perl', 'Ruby', 'Node', 'Scala', 'Haskell', 'Python3', 'Prolog', 'PHP', 'Clojure']
+C_STYLE_SUPPORED_LANGUAGE = ['C++', 'C', 'Obj-C', 'C++11', 'C++98', 'C++14', 'CLang']
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # --------------    Sub process Thread model to execute the program ---------
@@ -366,6 +366,8 @@ class Execute:
         res = {'stdout': '', 'stderr': ''}
         # pdb.set_trace()
         try:
+            if not LangConfig.get(self.lang):
+                return {'status':'error',"msg":"You send a invalid lang in the request"}
             if LangConfig.get(self.lang).get('compile_is_run') is True:
                 return self.compile()
             else:

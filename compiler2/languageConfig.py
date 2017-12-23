@@ -21,6 +21,15 @@ LangConfig = {
         'compile_cmd_with_depends': '',# prog_obj_name, prog_file_name
         'run_cmd_with_depends': '',
     },
+    'CPP': {
+        'ext': 'cpp',
+
+        'compile_cmd': 'g++ -ldl -pthread -std=c++11 -g -o $prog_obj_name $prog_file_name',
+        'run_cmd': '$prog_obj_name',
+
+        'compile_cmd_with_depends': '',# prog_obj_name, prog_file_name
+        'run_cmd_with_depends': '',
+    },
     'C++': {
         'ext': 'cpp',
 

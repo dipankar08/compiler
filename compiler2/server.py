@@ -2,7 +2,7 @@
 import tornado.escape
 import tornado.ioloop
 import tornado.web
-# import pdb
+import pdb
 from bson import json_util
 from execute import Execute
 import json
@@ -18,7 +18,7 @@ class CompilerHandler(tornado.web.RequestHandler):
 
     def set_default_headers(self):
         self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with, Content-Type")
         self.set_header('Access-Control-Allow-Methods', 'OPTIONS, TRACE, GET, HEAD, POST, PUT')
 
     def get(self, cmd):
@@ -63,6 +63,13 @@ class CompilerHandler(tornado.web.RequestHandler):
                 filedata = self.request.files.get('file-0')[0]['body']
 
         self.handle(cmd, data, filedata)
+
+    def options(self,cmd):
+        # no body
+        print(' Optiosn called')
+        #pdb.set_trace()
+        self.set_status(204)
+        self.finish()
 
     def handle(self, cmd, json_data, filedata = None):
         res = {}
