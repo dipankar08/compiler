@@ -123,7 +123,7 @@ application = tornado.web.Application([
 
 def start(port = None):
     if not port:
-        port = 80
+        port = 7777
     Log.i('Staring the server...')
     Log.i('Please open your brower and hit http://0.0.0.0:'+str(port)+'/')
     application.listen(port)
