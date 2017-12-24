@@ -3,8 +3,8 @@ import tornado.escape
 import tornado.ioloop
 import tornado.web
 import pdb
-from bson import json_util
 from execute import Execute
+#from bson import json_util
 import json
 from Logs import LE, Log
 
@@ -40,7 +40,8 @@ class CompilerHandler(tornado.web.RequestHandler):
 
         if not self.request.body:
             res = {'status': 'error', 'msg': 'You must send some json data with post request'}
-            self.write(json.dumps(res, default=json_util.default))
+            #self.write(json.dumps(res, default=json_util.default))
+            self.write(json.dumps(res))
             return
 
         if 'multipart/form-data' in self.request.headers.get('Content-Type'):
@@ -54,7 +55,8 @@ class CompilerHandler(tornado.web.RequestHandler):
             except Exception as e:
                 LE(e)
                 res = {'status':'error', 'msg':'You send an invalid json object.', 'help':'please paste the request body in https://jsonlint.com/ to check the error in your json'}
-                self.write(json.dumps(res, default=json_util.default))
+                self.write(json.dumps(res))
+                #self.write(json.dumps(res, default=json_util.default))
                 return
         else:
             data = dict([(k, v[0]) for k, v in self.request.arguments.items()])
@@ -111,8 +113,8 @@ class CompilerHandler(tornado.web.RequestHandler):
             res['msg'] = 'Some internal Error'
             res['help'] = 'Talk to dev ops:'+str(e)
 
-        self.write(json.dumps(res, default=json_util.default))
-
+        #self.write(json.dumps(res, default=json_util.default))
+        self.write(json.dumps(res))
 
 application = tornado.web.Application([
     (r"/([a-z0-9_/]*)", CompilerHandler),
