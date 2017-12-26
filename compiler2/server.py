@@ -74,12 +74,16 @@ class CompilerHandler(tornado.web.RequestHandler):
         self.finish()
 
     def handle(self, cmd, json_data, filedata = None):
+        #python 3 conversion
+        #cmd = cmd.decode('ascii')
+        print("[INFO] Command sent:"+str(cmd))
         res = {}
         try:
             # pdb.set_trace()
             browserdata = {'remote_ip': self.request.remote_ip, 'browser': self.request.headers.get('User-Agent')}
             Log.i(browserdata)
-
+            # Python 3 conversion needed.
+            #pdb.set_trace()
             lang = json_data.get('lang', 'C')
             name = json_data.get('name', 'Solution')
             code = json_data.get('code', '')
@@ -89,9 +93,10 @@ class CompilerHandler(tornado.web.RequestHandler):
             func = ''
 
             # Unicode
-            [ cmd, lang, name, code, input, depends] = [ xx.encode('utf8') if xx else '' for xx in [ cmd, lang, name, code, input, depends]]
+            #[ cmd, lang, name, code, input, depends] = [ xx.encode('utf8') if xx else '' for xx in [ cmd, lang, name, code, input, depends]]
             # Logic  Here ..
             try:
+                #pdb.set_trace()
                 if cmd == 'compile':
                     res = Execute(lang, name, code, func, input, depends, testcases).save(name, code, func, input).compile(name)
                 elif cmd == 'run':

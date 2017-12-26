@@ -17,7 +17,7 @@ virtualenv  -p python3  venv_compiler
 source venv_compiler/bin/activate
 which python
 python --version
-python -m pip install tornado
-python -m pip install pymongo
+sudo python -m pip install tornado
+#python -m pip install pymongo
 pip list
 sudo python server.py
