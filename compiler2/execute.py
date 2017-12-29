@@ -97,8 +97,8 @@ class RunCmd(threading.Thread):
             res['msg'] = ''
         # pdb.set_trace()
         try:
-            res['stdout'] = self.p.stdout.read().decode('ascii')
-            res['stderr'] = self.p.stderr.read().decode('ascii')
+            res['stdout'] = self.p.stdout.read()
+            res['stderr'] = self.p.stderr.read()
             res['lang'] = self.lang
             res['return_code'] = self.p.returncode
         except Exception as e:
