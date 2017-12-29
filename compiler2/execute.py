@@ -43,7 +43,7 @@ from languageConfig import LangConfig
 import string
 # # # # # # # # # # # # # # # #     GLOBAL DEFINATION Must be matched with CodeStudio.JS# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 SUPPORED_LANGUAGE = LangConfig.keys() #['Python', 'C++ ', 'C', 'Obj-C', 'Java', 'C + + 11', 'C + + 98', 'C + + 14', 'CLang', 'Go', 'C# ', 'Perl', 'Ruby', 'Node', 'Scala', 'Haskell', 'Python3', 'Prolog', 'PHP', 'Clojure']
-C_STYLE_SUPPORED_LANGUAGE = ['C++', 'C', 'Obj-C', 'C++11', 'C++98', 'C++14', 'CLang']
+C_STYLE_SUPPORED_LANGUAGE = ['C++','CPP', 'C', 'Obj-C', 'C++11', 'C++98', 'C++14', 'CLang']
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # --------------    Sub process Thread model to execute the program ---------
@@ -128,6 +128,22 @@ def normFileName(sentence):
     sentence = re.sub('[^A-Za-z0-9] + ', '', sentence)
     return sentence
 
+def buildFormatedError(error):
+    try:
+        error1 = [ e for e in  error.split('\n') if e.startswith('/tmp/') and 'error:' in e]
+        error2 = [(int(e.split(':')[1]),e[e.find('error:'):].strip())  for e in error1 ]
+        ans ={}
+        for k, v in error2:
+            if k in ans:
+                ans[k] = ans[k] +' and '+ v
+            else:
+                ans[k] = v;
+        return ans
+    except Exception as e:
+        LE(e)
+        Log.i('Error: Not able to generated formated Error' + str(e))
+        return {}
+   
 def GCC_FORMETTED_ERROR(a):
     # pdb.set_trace()
     try:
@@ -329,8 +345,9 @@ class Execute:
                 res['status'] = 'success' #  This is compilation status
         else: #  for c, c + + , java Code..
             Log.i(res)
-            if self.lang ==  'c' or self.lang ==  'cpp' or self.lang ==  'cpp98' or self.lang ==  'cpp11' or self.lang ==  'cpp14':
-                        res['formated_error'] = GCC_FORMETTED_ERROR(res['stderr'])
+            #pdb.set_trace()
+            if self.lang  in C_STYLE_SUPPORED_LANGUAGE : 
+                res['formatted_error'] = buildFormatedError(res['stderr'])
             if 'error' in res['stderr']:
                 res['msg'] = 'Syntax Error: Not able to compile'
                 res['output'] = res['stderr']
